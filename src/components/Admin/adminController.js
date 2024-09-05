@@ -43,18 +43,16 @@ const addrole = async (req, res) => {
 
 const adminRegister = async (req, res) => {
     try {
-        const { email, password, adminName, mobileNo, role } = req.body;
+        const { email, password, adminName, mobileNo, roleId } = req.body;
 
-        const rolefind = await Role.findOne({ roleName: role });
-        console.log(rolefind);
+        const rolefind = await Role.findById(roleId);
 
         if (!rolefind) {
             return common.sendError(req, res, { message: "Invalid role ID" }, 400);
         }
-        console.log(rolefind.role);
 
         if (rolefind.roleName.toLowerCase() === "admin") {
-            const existingAdmin = await Admin.findOne({ role: rolefind.roleName });
+            const existingAdmin = await Admin.findOne({ role: roleId });
             if (existingAdmin) {
                 return common.sendError(req, res, { message: "Admin role can only be created once" }, 409);
             }
@@ -68,11 +66,11 @@ const adminRegister = async (req, res) => {
             email: email,
             password: hashPassword,
             mobileNo: mobileNo,
-            role: role
+            role: roleId
         });
 
         await data.save();
-        return common.sendSuccess(req, res, { message: "Admin/Sub-admin registered successfully", data });
+        return common.sendSuccess(req, res, { message: "Admin Add successfully", data });
 
     } catch (error) {
         return common.sendError(req, res, { message: error.message }, 500);
@@ -124,55 +122,6 @@ const adminLogin = async (req, res) => {
     }
 }
 
-const subadminRegister = async (req, res) => {
-    try {
-        const authHeader = req.header('Authorization');
-        if (!authHeader) {
-            return common.sendError(req, res, { message: "Authorization header is missing" }, 401);
-        }
-        const token = authHeader.split(' ')[1];
-        const decoded = jwt.verify(token, jwtSecret);
-        const id = decoded._id;
-
-        const checktoken = await client.get(id);
-        if (checktoken) {
-            return common.sendError(req, res, { message: "Admin logout" }, 403);
-        }
-
-        const { email, password, adminName, mobileNo, role } = req.body;
-
-        const rolefind = await Role.findOne({ roleName: role });
-
-        if (!rolefind) {
-            return common.sendError(req, res, { message: "Invalid role ID" }, 400);
-        }
-
-        if (rolefind.roleName.toLowerCase() === "admin") {
-            const existingAdmin = await Admin.findOne({ role: rolefind.roleName });
-            if (existingAdmin) {
-                return common.sendError(req, res, { message: "Admin role can only be created once" }, 409);
-            }
-        }
-
-        const salt = await bcrypt.genSalt(10);
-        const hashPassword = await bcrypt.hash(password, salt);
-
-        const data = new Admin({
-            adminName: adminName,
-            email: email,
-            password: hashPassword,
-            mobileNo: mobileNo,
-            role: role
-        });
-
-        await data.save();
-        return common.sendSuccess(req, res, { message: "Admin/Sub-admin registered successfully", data });
-
-    } catch (error) {
-        return common.sendError(req, res, { message: error.message }, 500);
-    }
-};
-
 const adminlogout = async (req, res) => {
     try {
         const authHeader = req.header('Authorization');
@@ -203,7 +152,7 @@ const adminlogout = async (req, res) => {
     }
 }
 
-const adminupdate = async (req, res) => {
+const addsubadmin = async (req, res) => {
     try {
         const authHeader = req.header('Authorization');
         if (!authHeader) {
@@ -218,11 +167,61 @@ const adminupdate = async (req, res) => {
             return common.sendError(req, res, { message: "Admin logout" }, 403);
         }
 
-        const updatedAdmin = await Admin.findByIdAndUpdate(id, req.body, { new: true });
+        const { email, password, adminName, mobileNo, roleId } = req.body;
 
+        const rolefind = await Role.findById(roleId);
+
+        if (!rolefind) {
+            return common.sendError(req, res, { message: "Invalid role ID" }, 400);
+        }
+
+        if (rolefind.roleName.toLowerCase() === "admin") {
+            const existingAdmin = await Admin.findOne({ role: roleId });
+            if (existingAdmin) {
+                return common.sendError(req, res, { message: "Admin role can only be created once" }, 409);
+            }
+        }
+
+        const salt = await bcrypt.genSalt(10);
+        const hashPassword = await bcrypt.hash(password, salt);
+
+        const data = new Admin({
+            adminName: adminName,
+            email: email,
+            password: hashPassword,
+            mobileNo: mobileNo,
+            role: roleId
+        });
+
+        await data.save();
+        return common.sendSuccess(req, res, { message: "Sub-admin add successfully", data });
+
+    } catch (error) {
+        return common.sendError(req, res, { message: error.message }, 500);
+    }
+};
+
+const adminupdate = async (req, res) => {
+    try {
+        const authHeader = req.header('Authorization');
+        if (!authHeader) {
+            return common.sendError(req, res, { message: "Authorization header is missing" }, 401);
+        }
+
+        const token = authHeader.split(' ')[1];
+        const decoded = jwt.verify(token, jwtSecret);
+        const currentAdminId = decoded._id;
+
+        const role = await Role.findById(decoded.role);
+        if (role.roleName.toLowerCase() === 'admin') {
+            return common.sendError(req, res, { message: "Superadmin cannot update" }, 403);
+        }
+
+        const updatedAdmin = await Admin.findByIdAndUpdate(currentAdminId, req.body, { new: true });
         if (!updatedAdmin) {
             return common.sendError(req, res, { message: "Admin not found" }, 404);
         }
+
         return common.sendSuccess(req, res, { message: "Admin updated successfully", admin: updatedAdmin });
     } catch (error) {
         return common.sendError(req, res, error, 500);
@@ -235,39 +234,29 @@ const admindelete = async (req, res) => {
         if (!authHeader) {
             return common.sendError(req, res, { message: "Authorization header is missing" }, 401);
         }
+
         const token = authHeader.split(' ')[1];
         const decoded = jwt.verify(token, jwtSecret);
-        const id = decoded._id;
-        // const findEmail = decoded.email;
-        // if (!findEmail) {
-        //     return common.sendError(req, res, { message: "Email not found" }, 404);
-        // }
+        const currentAdminId = decoded._id;
 
-        const checktoken = await client.get(id);
-        if (checktoken) {
-            return common.sendError(req, res, { message: "Admin logout" }, 403);
+        const role = await Role.findById(decoded.role);
+        if (role.roleName.toLowerCase() === 'admin') {
+            return common.sendError(req, res, { message: "Superadmin cannot delete." }, 403);
         }
-        const admin = await Admin.findOne({ _id: id });
+
+        const admin = await Admin.findById(currentAdminId);
         if (!admin) {
             return common.sendError(req, res, { message: "Admin not found" }, 404);
         }
 
         if (admin.status === 2) {
-            return common.sendError(req, res, { message: "Your account is already deleted" }, 400);
+            return common.sendError(req, res, { message: "Account is already deleted" }, 400);
         }
 
-        if (admin.status === 1) {
-            const updatedAdmin = await Admin.findByIdAndUpdate(id, { status: 2 }, { new: true });
-            if (!updatedAdmin) {
-                return common.sendError(req, res, { message: "Admin not found" }, 404);
-            }
+        await Admin.findByIdAndUpdate(currentAdminId, { status: 2 }, { new: true });
+        await client.del(currentAdminId);
 
-            await client.del(id);
-            return common.sendSuccess(req, res, { message: "Admin deleted successfully", });
-        } else {
-            return common.sendError(req, res, { message: "Admin not login" }, 403);
-        }
-
+        return common.sendSuccess(req, res, { message: "Admin deleted successfully" });
     } catch (error) {
         return common.sendError(req, res, error, 500);
     }
@@ -275,12 +264,30 @@ const admindelete = async (req, res) => {
 
 const adminget = async (req, res) => {
     try {
-        const admin = await Admin.find();
-        return common.sendSuccess(req, res, admin);
+        const authHeader = req.header('Authorization');
+        if (!authHeader) {
+            return common.sendError(req, res, { message: "Authorization header is missing" }, 401);
+        }
+
+        const token = authHeader.split(' ')[1];
+        const decoded = jwt.verify(token, jwtSecret);
+
+        const adminRole = await Role.findOne({ roleName: "admin" });
+
+        if (!adminRole) {
+            return common.sendError(req, res, { message: "Admin role not found" }, 404);
+        }
+
+        const subadmins = await Admin.find({
+            _id: { $ne: decoded._id }, 
+            role: { $ne: adminRole._id } 
+        });
+
+        return common.sendSuccess(req, res, subadmins);
     } catch (error) {
         return common.sendError(req, res, error, 500);
     }
-}
+};
 
 // =================== USER LOGING & REGISTRATION MODULE ======================== //
 
@@ -1054,5 +1061,5 @@ module.exports = {
     addrole, adminRegister, adminLogin, adminlogout, adminupdate, admindelete, adminget, verifyuser, addcollegeuniversity,
     addCourse, addCourseToCollegeUniversity, collegeuniversityUpdate, deleteCollegeUniversity, collegeuniversityget,
     collegeuniversitygetOne, addroundmeritlist, updatemeritlist, deletemeritlist, getmeritlist, getonemeritlist,
-    meritlistrounddeclared, startRound, completeRound, admitionfeepaymentverifay, sendnotification, subadminRegister
+    meritlistrounddeclared, startRound, completeRound, admitionfeepaymentverifay, sendnotification, addsubadmin
 }; 

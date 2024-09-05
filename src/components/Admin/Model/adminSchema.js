@@ -18,7 +18,7 @@ const AdminSchema = new Mongoose.Schema({
     require:true
   },
   role:{
-      type: String,
+      type: Mongoose.Schema.Types.ObjectId,
       require:true
   },
   status:{

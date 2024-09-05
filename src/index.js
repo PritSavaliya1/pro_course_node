@@ -25,7 +25,7 @@ app.post("/addrole", adminValadation.addroleValadation, addAdmin.addrole);
 app.post("/adminRegister", adminValadation.adminRegisterValadation, addAdmin.adminRegister);
 app.post("/adminLogin", adminValadation.adminloginValadation, addAdmin.adminLogin);
 app.post("/adminlogout", addAdmin.adminlogout);
-app.post("/subadmin", adminValadation.subadminRegisterValadation, addAdmin.subadminRegister);
+app.post("/subadmin", adminValadation.subadminRegisterValadation, addAdmin.addsubadmin);
 app.patch("/adminupdate", addAdmin.adminupdate);
 app.delete("/admindelete", addAdmin.admindelete);
 app.get("/adminget", addAdmin.adminget);
