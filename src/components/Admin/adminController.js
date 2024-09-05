@@ -16,7 +16,7 @@ const client = require("./redisClient");
 const jwtSecret = config.get("jwtSecret");
 const bcrypt = require("bcrypt");
 const jwt = require("jsonwebtoken");
-const common = require("./utils/common");
+const common = require("../../utils/common");
 const { response } = require('express');
 
 // =================== ADMIN LOGING & REGISTRATION MODULE ======================== //

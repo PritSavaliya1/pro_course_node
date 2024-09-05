@@ -2,64 +2,83 @@ const Mongoose = require("mongoose");
 const UserSchema = new Mongoose.Schema({
     studentName: {
         type: String,
+        require:true,
     },
     email: {
-        type: String
+        type: String,
+        require:true,
     },
     phoneNo: {
-        type: Number
+        type: Number,
+        require:true,
     },
     password: {
         type: String,
+        require:true,
     },
     gender: {
         type: String,
+        require:true,
     },
     dateOfbirth: {
         type: String,
+        require:true,
     },
     fatherName: {
         type: String,
+        require:true,
     },
     motherName: {
         type: String,
+        require:true,
     },
     cast: {
         type: String,
+        require:true,
     },
     physicallyHandicapped: {
         type: String,
+        require:true,
     },
     familyAnnualIncome: {
         type: String,
+        require:true,
     },
     address: {
-        type: String
+        type: String,
+        require:true,
     },
     city: {
-        type: String
+        type: String,
+        require:true,
     },
     country: {
-        type: String
+        type: String,
+        require:true,
     },
     pinCode: {
         type: Number,
+        require:true,
     },
     alternatePhoneNo: {
         type: Number,
     },
     meritRank: {
-        type: Number
+        type: Number,
+        require:true,
     },
     courseName: {
-        type: String
+        type: String,
+        require:true,
     },
     registrationfees: [{
         transactionNo: {
-            type: String
+            type: String,
+            require:true,
         },
         transactionAmount: {
-            type: Number
+            type: Number,
+            require:true,
         },
         paymentStatus: {
             type: Number,
@@ -68,23 +87,29 @@ const UserSchema = new Mongoose.Schema({
     }],
     uplodedDocumnets: [{
         csatDoc: {
-            type: String
+            type: String,
+            require:true,
         },
         studentPhoto: {
-            type: String
+            type: String,
+            require:true,
         },
         dobDoc: {
-            type: String
+            type: String,
+            require:true,
         },
         diplomaLatestMarksheet: {
-            type: String
+            type: String,
+            require:true,
         },
         aadharcard: [{
             front: {
-                type: String
+                type: String,
+                require:true,
             },
             back: {
-                type: String
+                type: String,
+                require:true,
             }
         }]
     }],

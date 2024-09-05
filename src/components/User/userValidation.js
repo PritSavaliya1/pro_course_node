@@ -1,7 +1,7 @@
 const Validator = require("validatorjs");
 const { validator } = require("../validate");
 
-const common = require("./utils/common");
+const common = require("../../utils/common");
 
 async function studentValadation(req, res, next) {
   let rules = {
@@ -117,6 +117,20 @@ async function registrationfeepaymentValadation(req, res, next) {
   });
 }
 
+async function authOnOffValadation(req, res, next) {
+  let rules = {
+    email: "required|email|regex:/^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/",
+  };
+  await validator(req.body, rules, async (errors) => {
+    if (errors) {
+      console.log("Error :", errors);
+      return common.sendError(req, res, errors, 422);
+    } else {
+      next();
+    }
+  });
+}
+
 async function userloginValadation(req, res, next) {
   let rules = {
     email: "required|email|regex:/^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/",
@@ -181,5 +195,5 @@ async function admitionfeepaymentValadation(req, res, next) {
 module.exports = {
   studentValadation, OTPValadation, forgetpasswordotpValadation, resetPasswordWithOtpValadation, uploadDocumentValadation,
   registrationfeepaymentValadation, userloginValadation, studentselectcourseValadation, studentselectCollegeValadation,
-  admitionfeepaymentValadation
+  admitionfeepaymentValadation, authOnOffValadation
 };

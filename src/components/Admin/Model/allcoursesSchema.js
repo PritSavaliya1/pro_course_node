@@ -2,7 +2,8 @@ const Mongoose = require("mongoose");
 
 const allcoursesSchema = new Mongoose.Schema({
     courseName: {
-        type: String
+        type: String,
+        require:true
     },
     status: {
         type: Number,

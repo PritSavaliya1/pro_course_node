@@ -1,7 +1,7 @@
 const validatro = require("validatorjs");
 const { validator } = require("../validate");
 
-const common = require("./utils/common");
+const common = require("../../utils/common");
 
 async function addroleValadation(req, res, next) {
   let rules = {

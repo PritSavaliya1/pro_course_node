@@ -3,44 +3,57 @@ const Mongoose = require("mongoose");
 const CollegeUniversitySchema = new Mongoose.Schema({
   type: {
     type: String,
+    require:true
   },
   name: {
     type: String,
+    require:true
   },
   address: {
     type: String,
+    require:true
   },
   contactNo: {
     type: Number,
+    require:true
   },
   email: {
-    type: String
+    type: String,
+    require:true
   },
   nameOfProgram: [{
     courseName: {
-      type: String
+      type: String,
+      require:true
     },
     seat: {
-      type: Number
+      type: Number,
+      require:true
     },
   }],
   district: {
     type: String,
+    require:true
   },
   boysHostel: {
-    type: String
+    type: String,
+    require:true
   },
   girlsHostel: {
-    type: String
+    type: String,
+    require:true
   },
   mess: {
-    type: String
+    type: String,
+    require:true
   },
   transportation: {
-    type: String
+    type: String,
+    require:true
   },
   tutionFee: {
-    type: Number
+    type: Number,
+    require:true
   },
   status: {
     type: Number,

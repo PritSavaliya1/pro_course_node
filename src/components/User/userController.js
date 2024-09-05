@@ -25,7 +25,7 @@ const Select = require("./model/selectcourse&college");
 const Round = require("../Admin/Model/studentmeritlistresult");
 
 const upload = require("./upload");
-const common = require("./utils/common");
+const common = require("../../utils/common");
 const Client = require("./redisClient");
 
 const { statSync } = require("fs");
@@ -57,23 +57,11 @@ const userregistration = async (req, res) => {
 
         await user.save();
 
-        // qrcode.toBuffer(secret.otpauth_url, (err, buffer) => {
-        //     if (err) {
-        //         return res.status(500).send('Error generating QR code');
-        //     }
-
-        //     res.writeHead(200, {
-        //         'Content-Type': 'image/png',
-        //         'Content-Length': buffer.length
-        //     });
-        //     res.end(buffer);
-        // });
-
         qrcode.toDataURL(secret.otpauth_url, (err, dataUrl) => {
             if (err) {
                 return common.sendError(req, res, { message: 'Error generating QR code' }, 500);
             }
-            res.json({ secret: secret.base32, qrCodeUrl: dataUrl });
+            return common.sendSuccess(req, res, { secret: secret.base32, qrCodeUrl: dataUrl });
         });
 
     } catch (error) {
@@ -88,7 +76,7 @@ const userverify = async (req, res) => {
         const user = await addUser.findOne({ name: name });
 
         if (!user) {
-            return res.status(404).send('User not found');
+            return common.sendError(req, res, { message: 'User not found' }, 404);
         }
 
         const verified = speakeasy.totp.verify({
@@ -144,10 +132,7 @@ const studentRegistration = async (req, res) => {
 
         ejs.renderFile(Path, templateData, (err, html) => {
             if (err) {
-                return res.status(500).json({
-                    message: "Error rendering email template",
-                    error: err.message,
-                });
+                return common.sendError(req, res, { message: "Error rendering email template", error: err.message, }, 500);
             } else {
                 let mailOptions = {
                     from: "20se09ce005@ppsu.ac.in",
@@ -169,7 +154,7 @@ const studentRegistration = async (req, res) => {
             if (err) {
                 return common.sendError(req, res, { message: 'Error generating QR code' }, 500);
             }
-            return common.sendSuccess(req, res, { message: "User registered successfully" ,secret: secret.base32, qrCodeUrl: dataUrl });
+            return common.sendSuccess(req, res, { message: "User registered successfully", secret: secret.base32, qrCodeUrl: dataUrl });
         });
 
     } catch (error) {
@@ -192,8 +177,6 @@ const verifyOTP = async (req, res) => {
 
         const userData = await Client.get(email);
         const data = JSON.parse(userData);
-        console.log(otpData);
-
 
         const existingUser = await User.findOne({ email });
         if (existingUser) {
@@ -201,7 +184,6 @@ const verifyOTP = async (req, res) => {
         }
 
         const Data = new User(data);
-        console.log(Data);
 
         await Data.save();
         return common.sendSuccess(req, res, { message: "OTP verified and user registration completed" });
@@ -238,7 +220,7 @@ const forgetpasswordotp = async (req, res) => {
 
         ejs.renderFile(Path, templateData, (err, html) => {
             if (err) {
-                return res.status(500).json({ message: "Error rendering email template", error: err.message, });
+                return common.sendError(req, res, { message: "Error rendering email template", error: err.message, }, 500);
             } else {
                 let mailOptions = {
                     from: "20se09ce005@ppsu.ac.in",
@@ -366,7 +348,6 @@ const registrationfeepayment = async (req, res) => {
             },
         });
 
-
         const invoiceData = {
             userName: user.studentName,
             transactionNo: paymentIntent.id,
@@ -414,23 +395,23 @@ const registrationfeepayment = async (req, res) => {
 
 const authOnOff = async (req, res) => {
     try {
-        const {email} = req.body;
+        const { email } = req.body;
         const user = await User.findOne({ email });
         const id = user._id;
         if (!user) {
-            return res.status(404).json({ message: "User not found" }, 401);
+            return common.sendError(req, res, { message: "User not found" }, 401);
         }
         if (user.status === 4) {
-            return res.status(400).json({ message: "Your account is deleted" }, 400);
+            return common.sendError(req, res, { message: "Your account is deleted" }, 400);
         }
 
         if (user.authStatus === 1) {
             const updateduser = await User.findByIdAndUpdate(id, { authStatus: 0 }, { new: true });
-        } else if(user.authStatus === 0) {
+        } else if (user.authStatus === 0) {
             const updateduser = await User.findByIdAndUpdate(id, { authStatus: 1 }, { new: true });
         }
 
-        return common.sendSuccess(req,res,{message:"2FA Turn On/Off"});
+        return common.sendSuccess(req, res, { message: "2FA Turn On/Off" });
     } catch (error) {
         return common.sendError(req, res, { message: error.message }, 500);
     }
@@ -482,8 +463,8 @@ const loginUser = async (req, res) => {
             return common.sendError(req, res, { message: "User not verifyed" }, 401);
         }
 
-        if(user.authStatus === 1){
-            if(!otp){
+        if (user.authStatus === 1) {
+            if (!otp) {
                 return common.sendError(req, res, { message: "2FA is On, OTP is required" }, 400);
             }
             const verified = speakeasy.totp.verify({
@@ -491,18 +472,18 @@ const loginUser = async (req, res) => {
                 encoding: "base32",
                 token: otp,
             });
-    
+
             if (!verified) {
                 return common.sendError(req, res, { message: 'OTP is invalid!' }, 422);
             }
         }
 
-        if(user.authStatus === 0){
+        if (user.authStatus === 0) {
             if (otp) {
                 return common.sendError(req, res, { message: "2FA is Off, OTP is not required" }, 400);
             }
         }
-        
+
         return common.sendSuccess(req, res, { message: "User login successful", token });
     } catch (error) {
         return common.sendError(req, res, error, 500);

@@ -70,7 +70,7 @@ app.post("/resetPasswordWithOtp", studentValadation.resetPasswordWithOtpValadati
 app.post("/uploadImage", upload.array('files', 10), addUser.uploadImage);
 app.post("/uploadDocument", studentValadation.uploadDocumentValadation, addUser.uploadDocument);
 app.post("/registrationfeepayment", studentValadation.registrationfeepaymentValadation, addUser.registrationfeepayment);
-app.post("/OnOff",addUser.authOnOff);
+app.post("/OnOff",studentValadation.authOnOffValadation,addUser.authOnOff);
 app.post("/loginUser", studentValadation.userloginValadation, addUser.loginUser);
 app.post("/logoutuser", addUser.logoutuser);
 app.delete("/deleteUserAccount", addUser.deleteUserAccount);
