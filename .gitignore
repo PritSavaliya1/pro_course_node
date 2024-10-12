@@ -1,4 +1,4 @@
-config
-node_modules
-uploads
+config/
+node_modules/
 package-lock.json
+uploads/

@@ -3,7 +3,7 @@ const mongoose = require("mongoose");
 
 const multer = require("multer")
 const config = require("config");
-const PORT = config.get("PORT");
+const PORT = process.env.PORT || config.get("PORT") || 3000;
 const MONGO_URL = config.get("MONGO_URL");
 mongoose.connect(MONGO_URL);
 const redis = require("./components/User/redisClient");
