@@ -1,4 +1,4 @@
-const redis = require('redis');
+// const redis = require('redis');
 const Admin = require("./Model/adminSchema");
 const User = require("../User/model/userSchema");
 const CollegeUniversity = require("./Model/college&universitySchema");
@@ -12,7 +12,7 @@ const serviceAccount = require("../../../config/service.json");
 const firebase = require("firebase-admin");
 const moment = require("moment");
 const config = require("config");
-const client = require("./redisClient");
+// const client = require("./redisClient");
 const jwtSecret = config.get("jwtSecret");
 const bcrypt = require("bcrypt");
 const jwt = require("jsonwebtoken");

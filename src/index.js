@@ -5,9 +5,9 @@ const multer = require("multer")
 const config = require("config");
 const PORT = config.get("PORT");
 const MONGO_URL = config.get("MONGO_URL");
+mongoose.connect(MONGO_URL);
 const redis = require("./components/User/redisClient");
 const { upload } = require("./components/User/upload");
-
 const app = express();
 app.use(express.json());
 app.set("view engine", "ejs");
@@ -17,7 +17,6 @@ const addUser = require("./components/User/userController");
 const adminValadation = require("./components/Admin/adminValidation");
 const studentValadation = require("./components/User/userValidation");
 
-mongoose.connect(MONGO_URL);
 
 // =================== ADMIN LOGING & REGISTRATION MODULE ======================== //
 

@@ -1,4 +1,5 @@
 const Mongoose = require("mongoose");
+
 const UserSchema = new Mongoose.Schema({
     studentName: {
         type: String,
@@ -127,5 +128,6 @@ const UserSchema = new Mongoose.Schema({
         default: 0
     }
 }, { timestamps: true });
+
 const User = Mongoose.model("User", UserSchema);
 module.exports = User;

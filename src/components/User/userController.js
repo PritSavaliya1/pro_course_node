@@ -4,7 +4,7 @@ const moment = require("moment");
 const config = require("config");
 const bcrypt = require("bcryptjs");
 const jwt = require("jsonwebtoken");
-const mongoose = require("mongoose")
+const mongoose = require("mongoose");
 const nodemailer = require("nodemailer");
 const jwtSecret = config.get("jwtSecret");
 const Secretkey = config.get("Secret key");
@@ -106,8 +106,9 @@ const studentRegistration = async (req, res) => {
         }
 
         const generateOTP = () => Math.floor(100000 + Math.random() * 900000);
-        const hashPassword = await bcrypt.hash(password, 10);
         const otp = generateOTP();
+        
+        const hashPassword = await bcrypt.hash(password, 10);
 
         const secret = speakeasy.generateSecret({ name: studentName });
 
